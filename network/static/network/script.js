@@ -21,6 +21,7 @@ function loadNav(nav) {
             <div class="postContent">${element.content}</div>
             <div class="postFooter"><span id="span${element.id}">${likesNumber}</span> likes</div>
           `;
+          //If a user is logged in:
           if (document.querySelector("#username") != null){
             const actualUser = document.querySelector("#username").innerHTML;          
             if (element.likes.includes(actualUser)) {
