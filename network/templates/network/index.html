@@ -2,8 +2,17 @@
 {% load static %}
 
 {% block body %}
-    <div id="allPost">
-        
+    {% if user.is_authenticated %}
+    <div id="newPost">
+        <form id="newPostForm">
+            {% csrf_token %}
+            <textarea name="postContent" id="postContent" cols="50" rows="10" placeholder="Write what you are thinking..."></textarea>
+            <br>
+            <input class="btn btn-primary" type="submit" value="Post">
+        </form>
+    </div>
+    {% endif %}    
+    <div id="allPost">        
     </div>
 {% endblock %}
 

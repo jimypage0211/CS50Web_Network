@@ -10,7 +10,15 @@ from .models import *
 def index(request):    
     return render(request, "network/index.html")
 
-
+def newPost(request):
+    body = request.POST["body"]
+    newPost = Post(
+        user = request.user,
+        content = body.get('content')    
+        )
+    newPost.save()
+    return JsonResponse({"message": "New Post created"}, status=201)
+    
 def allPosts(request):    
     posts = Post.objects.all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
