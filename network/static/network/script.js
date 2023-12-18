@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+  document.querySelector("#newPostForm").addEventListener("submit", newPost);
   loadNav("all");
 });
 
@@ -47,6 +48,16 @@ function loadNav(nav) {
       })
       .catch((error) => console.error(error));
   }
+}
+
+function newPost (event){
+  event.preventDefault();
+  const postContent = document.querySelector("#postContent").value;
+  console.log(postContent);
+  fetch("/newPost", {
+    method: "POST",
+    body: postContent
+  })
 }
 
 function likePost(postID, likesNumber) {
