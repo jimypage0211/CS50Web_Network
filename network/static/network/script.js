@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-  document.querySelector("#newPostForm").addEventListener("submit", newPost);
+  if (document.querySelector("#username") != null){
+    document.querySelector("#newPostForm").addEventListener("submit", newPost);
+  }
   loadNav("all");
 });
 
@@ -18,7 +20,7 @@ function loadNav(nav) {
           postDiv.id = `post${element.id}`;
           let likesNumber = element.likes.length;
           postDiv.innerHTML = `
-            <div class="postHeader">${element.username} at ${element.timestamp} said:</div>
+            <div class="postHeader"><a href="/profile/${element.username}">${element.username}</a> at ${element.timestamp} said:</div>
             <div class="postContent">${element.content}</div>
             <div class="postFooter"><span id="span${element.id}">${likesNumber}</span> likes</div>
           `;
@@ -56,8 +58,10 @@ function newPost (event){
   console.log(postContent);
   fetch("/newPost", {
     method: "POST",
-    body: postContent
-  })
+    body: JSON.stringify({
+      content: postContent,
+    })
+  }).then(response => location.reload())
 }
 
 function likePost(postID, likesNumber) {
@@ -70,4 +74,13 @@ function unlikePost(postID, likesNumber) {
   document.querySelector(`#span${postID}`).innerHTML = likesNumber - 1;
   fetch(`/unlike/${postID}`)
   location.reload()
+}
+
+function editPost(){
+  fetch(`/editPost/${postID}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      content: postContent,
+    })
+  })
 }

@@ -13,6 +13,15 @@ class Post(models.Model):
     def __str__(self) -> str:
         return f"{self.user} posted {self.content} on {self.timestamp}"
     
+    @property
+    def checkFollows(self, userToCheck):
+        return userToCheck in self.user.follows.all()          
+
+    
+    @property
+    def likesNumber (self):
+        return len(self.likes.all())
+    
     def serialize(self):
         comments = self.comments.all()
         commentsList = []

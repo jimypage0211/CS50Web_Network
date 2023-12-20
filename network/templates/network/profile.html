@@ -1,0 +1,25 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+  <div>
+    <h3>{{profileName}}</h3>
+    <h4>{{followersNumber}} Followers {{followsNumber}} Follows </h4>
+    {% if user.username != profileName %}
+      
+      <a class="btn btn-primary" href="/follow/{{profileName}}" role="button">Follow</a>
+    {% endif %}    
+  </div>
+  {% for post in userPosts%}   
+    <div class="postDiv">
+      <div class="postHeader"><a href="/profile/{{post.user.username}}">{{post.user.username}}</a> at {{post.timestamp}} said:</div>
+      <div class="postContent">{{post.content}}</div>
+      <div class="postFooter"><span id="span${post.id}">{{post.likesNumber}}</span> likes</div>
+    </div>
+  {% endfor %}  
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/profile.js' %}"></script>
+{% endblock %}
+

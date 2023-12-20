@@ -7,30 +7,54 @@ from django.urls import reverse
 from .models import *
 
 
-def index(request):    
+def index(request):
     return render(request, "network/index.html")
 
-def newPost(request):
-    body = request.POST["body"]
-    newPost = Post(
+def follow(request, username):
+    targetUser = User.objects.get(username=username)
+    follow = Follower(
         user = request.user,
-        content = body.get('content')    
-        )
+        followTarget = targetUser
+    )
+    follow.save()
+    return HttpResponse("Follow done")
+
+
+def profile(request, username):
+    user = User.objects.get(username=username)
+    userPosts = user.posts.all().order_by("-timestamp").all()
+    followersNumber = len(user.followers.all())
+    followsNumber = len(user.follows.all())
+    return render(
+        request,
+        "network/profile.html",
+        {
+            "profileName": username,
+            "userPosts": userPosts,
+            "followersNumber": followersNumber,
+            "followsNumber": followsNumber,
+        },
+    )
+
+
+def newPost(request):
+    data = json.loads(request.body)
+    newPost = Post(user=request.user, content=data.get("content"))
     newPost.save()
     return JsonResponse({"message": "New Post created"}, status=201)
-    
-def allPosts(request):    
+
+
+def allPosts(request):
     posts = Post.objects.all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
-def like (request, postID):
+
+def like(request, postID):
     post = Post.objects.get(id=postID)
-    like = Like(
-        user = request.user,
-        post = post
-    )
-    like.save()    
+    like = Like(user=request.user, post=post)
+    like.save()
     return JsonResponse({"message": "Post liked"}, status=201)
+
 
 def unlike(request, postID):
     post = Post.objects.get(id=postID)
@@ -38,14 +62,14 @@ def unlike(request, postID):
     likeToRemove = 0
     for like in postLikes:
         if like.user == request.user:
-            likeToRemove = like 
+            likeToRemove = like
             break
-    likeToRemove.delete()  
+    likeToRemove.delete()
     return JsonResponse({"message": "Post unliked"}, status=201)
+
 
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -56,9 +80,11 @@ def login_view(request):
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "network/login.html", {
-                "message": "Invalid username and/or password."
-            })
+            return render(
+                request,
+                "network/login.html",
+                {"message": "Invalid username and/or password."},
+            )
     else:
         return render(request, "network/login.html")
 
@@ -77,24 +103,22 @@ def register(request):
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "network/register.html", {
-                "message": "Passwords must match."
-            })
+            return render(
+                request, "network/register.html", {"message": "Passwords must match."}
+            )
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "network/register.html", {
-                "message": "Username already taken."
-            })
+            return render(
+                request, "network/register.html", {"message": "Username already taken."}
+            )
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
-
-
 
 
 """
