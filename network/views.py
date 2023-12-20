@@ -10,6 +10,14 @@ from .models import *
 def index(request):
     return render(request, "network/index.html")
 
+def editPost (request, postID):
+    data = json.loads(request.body)
+    post = Post.objects.get(id=postID)
+    post.content = data.get("content")
+    post.save()
+    return JsonResponse({"message": "Post Edited"}, status=201)
+
+
 def follow(request, username):
     targetUser = User.objects.get(username=username)
     follow = Follower(
@@ -17,18 +25,30 @@ def follow(request, username):
         followTarget = targetUser
     )
     follow.save()
-    return HttpResponse("Follow done")
+    return HttpResponseRedirect(reverse("profile", kwargs={"username": username}))
 
+def unfollow(request, username):
+    targetUser = User.objects.get(username=username)
+    unfollowTarget = Follower.objects.get(user = request.user, followTarget = targetUser)
+    unfollowTarget.delete()
+    return HttpResponseRedirect(reverse("profile", kwargs={"username": username}))
 
 def profile(request, username):
     user = User.objects.get(username=username)
     userPosts = user.posts.all().order_by("-timestamp").all()
+    userFollowersNames = []
+    for follower in user.followers.all():
+        userFollowersNames.append(follower.user.username)
+    currentUserFollows = False
+    if request.user.username in userFollowersNames:
+        currentUserFollows = True
     followersNumber = len(user.followers.all())
     followsNumber = len(user.follows.all())
     return render(
         request,
         "network/profile.html",
         {
+            "currentUserFollows": currentUserFollows,
             "profileName": username,
             "userPosts": userPosts,
             "followersNumber": followersNumber,
@@ -119,39 +139,3 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
-
-
-"""
-multiple pages method
-
- if request.method == "POST":
-        content = request.POST["postContent"]
-        post = Post(
-            user = request.user,
-            content = content,            
-        )
-        post.save()
-        return HttpResponseRedirect(reverse("index"))   
-    else:
-        posts = Post.objects.all()
-        return render(request, "network/index.html", {"posts": posts}) 
-        
-
-    index.html:
-    <div id="newPost">
-        <form action="{% url 'index' %}" method="Post">
-            {% csrf_token %}
-            <textarea name="postContent" id="postContent" cols="30" rows="10"></textarea>
-            <input type="submit" value="Post">
-        </form>
-    </div>
-    <div id="allPost">
-        {% for post in posts  %}
-            <div>{{post}}</div>
-        {% endfor %}
-    </div>
-        
-    
-    script tag:
-    src="{% static 'network/inbox.js' %}"
-"""

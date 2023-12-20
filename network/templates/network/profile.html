@@ -6,8 +6,11 @@
     <h3>{{profileName}}</h3>
     <h4>{{followersNumber}} Followers {{followsNumber}} Follows </h4>
     {% if user.username != profileName %}
-      
-      <a class="btn btn-primary" href="/follow/{{profileName}}" role="button">Follow</a>
+      {% if  currentUserFollows %}
+        <a class="btn btn-danger" href="/unfollow/{{profileName}}" role="button">Unfollow</a>
+      {% else %}
+        <a class="btn btn-primary" href="/follow/{{profileName}}" role="button">Follow</a>
+      {% endif %}
     {% endif %}    
   </div>
   {% for post in userPosts%}   

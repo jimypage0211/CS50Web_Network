@@ -44,6 +44,15 @@ function loadNav(nav) {
               });
               postDiv.append(likeButton);
             }
+            if(element.username === actualUser){
+              const editButton = document.createElement("button")
+              editButton.className = "btn btn-primary";
+              editButton.innerHTML = "Edit";
+              editButton.addEventListener("click", function () {
+                editPost(element.id)
+              });
+              postDiv.append(likeButton);
+            }
           }          
           allPosts.append(postDiv);
         });
@@ -76,7 +85,7 @@ function unlikePost(postID, likesNumber) {
   location.reload()
 }
 
-function editPost(){
+function editPost(postID){
   fetch(`/editPost/${postID}`, {
     method: "PUT",
     body: JSON.stringify({
