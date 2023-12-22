@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block body %}
+    <h1  id="type">{{type}}</h1>
     {% if user.is_authenticated %}
     <div id="newPost">
         <form id="newPostForm">

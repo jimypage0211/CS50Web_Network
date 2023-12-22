@@ -13,6 +13,22 @@ def index(request):
 def following(request):
     return render(request, "network/index.html", {"type": "following"})
 
+def followingPosts(request):
+    follows = request.user.follows.all()
+    followingUsers = []
+    for follow in follows:
+        followingUsers.append(follow.followTarget)
+    followingUsersPosts = []
+    for followingUser in followingUsers:
+        followingUsersPosts.extend(followingUser.posts.all())
+        
+    def byID (post):
+        return post.id
+    
+    followingUsersPosts.sort(key=byID, reverse=True)
+
+    return JsonResponse([post.serialize() for post in followingUsersPosts], safe=False)
+
 def editPost (request, postID):
     data = json.loads(request.body)
     post = Post.objects.get(id=postID)
@@ -70,7 +86,7 @@ def newPost(request):
 
 
 def allPosts(request):
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by("-id")
     return JsonResponse([post.serialize() for post in posts], safe=False)
 
 
