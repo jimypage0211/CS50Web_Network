@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function loadNav(nav) {
   if (nav === "all") {
-    fetch("/allPosts", {
+    fetch(`/${nav}Posts`, {
       method: "GET",
     })
       .then((response) => response.json())

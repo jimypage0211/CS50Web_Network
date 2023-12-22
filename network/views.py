@@ -8,7 +8,10 @@ from .models import *
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html", {"type": "all"})
+
+def following(request):
+    return render(request, "network/index.html", {"type": "following"})
 
 def editPost (request, postID):
     data = json.loads(request.body)
@@ -34,6 +37,8 @@ def unfollow(request, username):
     return HttpResponseRedirect(reverse("profile", kwargs={"username": username}))
 
 def profile(request, username):
+    if not request.user.is_authenticated :
+        return HttpResponseRedirect(reverse("login"))
     user = User.objects.get(username=username)
     userPosts = user.posts.all().order_by("-timestamp").all()
     userFollowersNames = []
