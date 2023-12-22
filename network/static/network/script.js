@@ -14,7 +14,6 @@ function loadNav(nav) {
       .then((json) => {
         const allPosts = document.querySelector("#allPost");
         json.forEach((element) => {
-          console.log(element);
           const postDiv = document.createElement("div");
           postDiv.className = "postDiv";
           postDiv.id = `post${element.id}`;
@@ -48,12 +47,42 @@ function loadNav(nav) {
               const editButton = document.createElement("button")
               editButton.className = "btn btn-primary";
               editButton.innerHTML = "Edit";
-              editButton.addEventListener("click", function () {
-                editPost(element.id)
+              editButton.dataset.toggle = "modal" ;
+              editButton.dataset.target = `#editPostModal${element.id}`;
+              const editPostModal = document.createElement("div");
+              editPostModal.innerHTML = `
+                <div class="modal fade" id="editPostModal${element.id}" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Edit Post</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <textarea rows="5" class="form-control" id="textArea_${element.id}">${element.content}</textarea>
+                      </div>
+                      <div class="modal-footer" id="${element.id}">
+                        <button type="button" id="saveChanges${element.id}" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+              
+              
+              postDiv.append(editButton);
+              postDiv.append(editPostModal);
+              const saveChanges = postDiv.lastElementChild.lastElementChild.lastElementChild.lastElementChild.lastElementChild.firstElementChild
+              saveChanges.addEventListener("click", function(){
+                const content = document.querySelector(`#textArea_${element.id}`).value;
+                editPost(element.id, content);
               });
-              postDiv.append(likeButton);
+              
             }
-          }          
+          } 
           allPosts.append(postDiv);
         });
       })
@@ -64,7 +93,6 @@ function loadNav(nav) {
 function newPost (event){
   event.preventDefault();
   const postContent = document.querySelector("#postContent").value;
-  console.log(postContent);
   fetch("/newPost", {
     method: "POST",
     body: JSON.stringify({
@@ -85,11 +113,11 @@ function unlikePost(postID, likesNumber) {
   location.reload()
 }
 
-function editPost(postID){
+function editPost(postID, content){
   fetch(`/editPost/${postID}`, {
     method: "PUT",
     body: JSON.stringify({
-      content: postContent,
+      content: content,
     })
-  })
+  }).then(()=>location.reload()) 
 }

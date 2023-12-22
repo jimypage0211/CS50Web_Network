@@ -17,12 +17,49 @@
     <div class="postDiv">
       <div class="postHeader"><a href="/profile/{{post.user.username}}">{{post.user.username}}</a> at {{post.timestamp}} said:</div>
       <div class="postContent">{{post.content}}</div>
-      <div class="postFooter"><span id="span${post.id}">{{post.likesNumber}}</span> likes</div>
+      <div class="postFooter"><span id="span{{post.id}}">{{post.likesNumber}}</span> likes</div>
+      {% if user.username == profileName %}
+        <button class="btn btn-primary" data-toggle="modal" data-target="#editPostModal_{{post.id}}">Edit</button>
+        <div class="modal fade" id="editPostModal_{{post.id}}" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Post</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <textarea rows="5" class="form-control" id="textArea_{{post.id}}">{{post.content}}</textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" id="saveChanges_{{post.id}}" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
     </div>
   {% endfor %}  
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/profile.js' %}"></script>
+  <script>    
+    function editPost(postID, content){
+      fetch(`/editPost/${postID}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          content: content,
+        })
+      }).then(()=>location.reload()) 
+    }
+
+    const saveChanges = document.querySelector("#saveChanges_{{post.id}}")
+    saveChanges.addEventListener("click", function(){
+      const content = document.querySelector(`#textArea_${element.id}`).value;
+      editPost(element.id, content);
+    });
+  </script>
 {% endblock %}
 
