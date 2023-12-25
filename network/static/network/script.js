@@ -75,6 +75,7 @@ function loadNav(nav) {
             
             postDiv.append(editButton);
             postDiv.append(editPostModal);
+            //never resolved  why saveChanges = document.querySelector(`#saveChanges${element.id}`); didnt fetch the button element
             const saveChanges = postDiv.lastElementChild.lastElementChild.lastElementChild.lastElementChild.lastElementChild.firstElementChild
             saveChanges.addEventListener("click", function(){
               const content = document.querySelector(`#textArea_${element.id}`).value;

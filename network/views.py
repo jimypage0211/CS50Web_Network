@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.core.paginator import Paginator
 from .models import *
 
 
@@ -20,13 +21,10 @@ def followingPosts(request):
         followingUsers.append(follow.followTarget)
     followingUsersPosts = []
     for followingUser in followingUsers:
-        followingUsersPosts.extend(followingUser.posts.all())
-        
+        followingUsersPosts.extend(followingUser.posts.all())        
     def byID (post):
-        return post.id
-    
+        return post.id    
     followingUsersPosts.sort(key=byID, reverse=True)
-
     return JsonResponse([post.serialize() for post in followingUsersPosts], safe=False)
 
 def editPost (request, postID):
@@ -57,6 +55,9 @@ def profile(request, username):
         return HttpResponseRedirect(reverse("login"))
     user = User.objects.get(username=username)
     userPosts = user.posts.all().order_by("-timestamp").all()
+    paginator = Paginator(userPosts,1)
+    page = request.GET.get('page')
+    postsFromPage = paginator.get_page(page)
     userFollowersNames = []
     for follower in user.followers.all():
         userFollowersNames.append(follower.user.username)
@@ -72,6 +73,7 @@ def profile(request, username):
             "currentUserFollows": currentUserFollows,
             "profileName": username,
             "userPosts": userPosts,
+            "postsFromPage": postsFromPage,
             "followersNumber": followersNumber,
             "followsNumber": followsNumber,
         },
